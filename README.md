@@ -27,3 +27,5 @@ $ brew install docc
 ```
 
 ## Author
+
+[tcnksm](https://github.com/tcnksm)
