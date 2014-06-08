@@ -4,27 +4,71 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
 )
 
 func main() {
-	fmt.Println("docc")
-	// 1) git project and it has github page?
-	//    -> open it browser
-	configValue := "remote.origin.url"
-	gitConfigCmd := exec.Command("git", "config", "--local", configValue)
 
-	url, err := gitConfigCmd.Output()
-	if err == nil && len(url) != 0 {
-		u := strings.TrimRight(string(url), "\n")
-		openByBrowser(u)
+	path := "."
+	if len(os.Args) > 1 {
+		path = os.Args[1]
 	}
 
-	// 2) There is not github page but it has README(.md*)
-	//    -> opent it $EDITOR
-	readmeFile := "README.md"
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err := os.Stat(absPath); os.IsNotExist(err) {
+		fmt.Printf("no such file or directory: %s\n", absPath)
+	}
+
+	os.Chdir(absPath)
+
+	url := retrieveURL()
+	if url != "" {
+		openByBrowser(url)
+	}
+
+	readmeFileName := "README.md" // Should be configurable
+	readmeFile, err := filepath.Abs(readmeFileName)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err := os.Stat(readmeFile); os.IsNotExist(err) {
+		fmt.Printf("%s is not found, create it ? [Y/n]: ", readmeFile)
+
+		var ans string
+		_, err := fmt.Scanf("%s", &ans)
+
+		if err != nil {
+			panic(err)
+		}
+
+		if ans != "Y" {
+			os.Exit(0)
+		}
+	}
+
 	openByEdior(readmeFile)
+}
+
+func retrieveURL() string {
+
+	urlPattern := "remote.origin.url" // Should be configurable
+	gitConfigCmd := exec.Command("git", "config", "--local", urlPattern)
+
+	url, err := gitConfigCmd.Output()
+	if err != nil || len(url) == 0 {
+		return ""
+	}
+
+	trimedURL := strings.TrimRight(string(url), "\n")
+	fmt.Println("url: " + trimedURL)
+	return trimedURL
 }
 
 func openByBrowser(url string) {
