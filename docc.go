@@ -31,7 +31,6 @@ func main() {
 
 	if *flVersion {
 		showVersion()
-		fmt.Println(os.Args[1])
 		os.Exit(0)
 	}
 
