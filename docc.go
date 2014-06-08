@@ -18,6 +18,7 @@ func main() {
 		flVersion = flag.Bool([]string{"v", "-version"}, false, "Print version information and quit")
 		flHelp    = flag.Bool([]string{"h", "-help"}, false, "Print this message")
 		flDebug   = flag.Bool([]string{"-debug"}, false, "Run as DEBUG mode")
+		flBrowser = flag.Bool([]string{"b", "-browser"}, false, "Use Browser by default")
 		flEditor  = flag.Bool([]string{"e", "-editor"}, false, "Use Editor by default")
 		flForce   = flag.Bool([]string{"f", "-force"}, false, "Create README file without prompting")
 	)
@@ -63,6 +64,11 @@ func main() {
 		openByBrowser(url)
 	}
 
+	if *flBrowser {
+		fmt.Printf("Could not retrieve project url from %s\n", absPath)
+		os.Exit(0)
+	}
+
 	readmeFile := retrieveReadmeFile(*flForce)
 	if readmeFile != "" {
 		openByEdior(readmeFile)
@@ -98,7 +104,6 @@ func retrieveURL() string {
 	}
 
 	trimedURL := strings.TrimRight(string(url), "\n")
-	fmt.Println("url: " + trimedURL)
 	return trimedURL
 }
 
