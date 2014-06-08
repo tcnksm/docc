@@ -1,22 +1,17 @@
-# docc(1)
+# docc
 
-`docc` open your project documents.
+`docc` open your project document.
 
 ## Usage
 
-By default, `docc` will open your project page by browser.
+By default, `docc` try to open your github page by Browser. 
 
 ```bash
 $ docc
 $ docc /path/to/project
 ```
 
-You can open README.md file by your `$EDITOR`.
-
-```bash
-$ docc -e
-$ docc -e /path/to/project
-```
+If project's url can not be retrieved, `docc` try to open project's `README.md` by `$EDITOR`. 
 
 ## Install
 
@@ -24,7 +19,7 @@ $ docc -e /path/to/project
 $ go get github.com/tcnksm/docc
 ```
 
-ToDo
+**ToDo**
 
 ```bash
 $ brew tap tcnksm/docc
