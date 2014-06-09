@@ -33,6 +33,13 @@ You can set default opening command in `~/.gitconfig`.
     cmd = "less"
 ```
 
+This configutation is defaultly used, so just type
+
+```bash
+$ docc
+$ docc /path/to/project
+```
+
 ## Install
 
 ```bash
