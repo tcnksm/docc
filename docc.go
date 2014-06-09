@@ -19,6 +19,7 @@ func main() {
 		flHelp    = flag.Bool([]string{"h", "-help"}, false, "Print this message")
 		flDebug   = flag.Bool([]string{"-debug"}, false, "Run as DEBUG mode")
 		flEditor  = flag.Bool([]string{"e", "-editor"}, false, "Use Editor by default")
+		flBrowser = flag.Bool([]string{"b", "-browser"}, false, "Use only browser")
 		flForce   = flag.Bool([]string{"f", "-force"}, false, "Create README file without prompting")
 		flCommand = flag.String([]string{"c", "-command"}, "", "Set Command to open README")
 	)
@@ -47,6 +48,10 @@ func main() {
 
 	if *flEditor {
 		cmd = os.Getenv("EDITOR")
+	}
+
+	if *flBrowser {
+		cmd = ""
 	}
 
 	debug("cmd:", cmd)
