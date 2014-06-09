@@ -4,7 +4,7 @@
 
 ## Usage
 
-By default, `docc` try to open your github page by Browser
+By default, `docc` try to open your github page by Browser.
 
 ```bash
 $ docc
@@ -13,11 +13,10 @@ $ docc /path/to/project
 
 ## Configuration
 
-You can set default opening command in `~/.gitconfig` and open `README.md` by it
-
+You can open project `README.md` by your favorite command. Set it in `~/.gitconfig`. 
 ```
 [docc]
-    cmd = "more"
+    cmd = more
 ```
 
 ## Install
@@ -25,13 +24,6 @@ You can set default opening command in `~/.gitconfig` and open `README.md` by it
 ```bash
 $ go get -d github.com/dotcloud/docker
 $ go get github.com/tcnksm/docc
-```
-
-**ToDo**
-
-```bash
-$ brew tap tcnksm/docc
-$ brew install docc
 ```
 
 ## Author
