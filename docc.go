@@ -18,9 +18,9 @@ func main() {
 		flVersion = flag.Bool([]string{"v", "-version"}, false, "Print version information and quit")
 		flHelp    = flag.Bool([]string{"h", "-help"}, false, "Print this message")
 		flDebug   = flag.Bool([]string{"-debug"}, false, "Run as DEBUG mode")
-		flBrowser = flag.Bool([]string{"b", "-browser"}, false, "Use Browser by default")
 		flEditor  = flag.Bool([]string{"e", "-editor"}, false, "Use Editor by default")
 		flForce   = flag.Bool([]string{"f", "-force"}, false, "Create README file without prompting")
+		flCommand = flag.String([]string{"c", "-command"}, "", "Set Command to open README")
 	)
 
 	flag.Parse()
@@ -38,6 +38,18 @@ func main() {
 		flag.Usage()
 		os.Exit(0)
 	}
+
+	cmd := retrieveCmd()
+
+	if *flCommand != "" {
+		cmd = *flCommand
+	}
+
+	if *flEditor {
+		cmd = os.Getenv("EDITOR")
+	}
+
+	debug("cmd:", cmd)
 
 	path := "."
 	if len(os.Args) > 1 {
@@ -59,21 +71,21 @@ func main() {
 	os.Chdir(absPath)
 
 	url := retrieveURL()
-	if !*flEditor && url != "" {
+	if cmd == "" && url != "" {
 		openByBrowser(url)
 	}
 
-	if *flBrowser {
+	if cmd == "" {
 		fmt.Printf("Could not retrieve project url from %s\n", absPath)
 		os.Exit(0)
 	}
 
 	readmeFile := retrieveReadmeFile(*flForce)
-	if readmeFile != "" {
-		openByEdior(readmeFile)
+	if readmeFile == "" {
+		fmt.Println("Could not retrieve README from %s\n", absPath)
 	}
 
-	os.Exit(0)
+	execOpen(cmd, readmeFile)
 }
 
 func showVersion() {
@@ -90,6 +102,14 @@ func assert(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func retrieveCmd() string {
+	cmd, err := gitConfig("docc.cmd")
+	if err != nil {
+		panic(err)
+	}
+	return cmd
 }
 
 func retrieveURL() string {
@@ -138,16 +158,12 @@ func openByBrowser(url string) {
 	execOpen(openCmd, url)
 }
 
-func openByEdior(filename string) {
-	openCmd := os.Getenv("EDITOR")
-	execOpen(openCmd, filename)
-}
-
 func execOpen(cmd string, target string) {
 
 	binary, lookErr := exec.LookPath(cmd)
 	if lookErr != nil {
-		panic(lookErr)
+		fmt.Printf("open command '%s' not found in $PATH\n", cmd)
+		os.Exit(1)
 	}
 
 	args := []string{cmd, target}
@@ -157,4 +173,23 @@ func execOpen(cmd string, target string) {
 	if execErr != nil {
 		panic(execErr)
 	}
+}
+
+func gitConfig(key string) (string, error) {
+	cmd := exec.Command("git", "config", "--path", "--null", "--get", key)
+	cmd.Stderr = os.Stderr
+
+	buf, err := cmd.Output()
+
+	if exitError, ok := err.(*exec.ExitError); ok {
+		if waitStatus, ok := exitError.Sys().(syscall.WaitStatus); ok {
+			if waitStatus.ExitStatus() == 1 {
+				return "", nil
+			}
+		}
+
+		return "", err
+	}
+
+	return strings.TrimRight(string(buf), "\000"), nil
 }
