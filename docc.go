@@ -15,13 +15,13 @@ import (
 func main() {
 
 	var (
-		flVersion = flag.Bool([]string{"v", "-version"}, false, "Print version information and quit")
-		flHelp    = flag.Bool([]string{"h", "-help"}, false, "Print this message")
-		flDebug   = flag.Bool([]string{"-debug"}, false, "Run as DEBUG mode")
-		flEditor  = flag.Bool([]string{"e", "-editor"}, false, "Use Editor by default")
-		flBrowser = flag.Bool([]string{"b", "-browser"}, false, "Use only browser")
-		flForce   = flag.Bool([]string{"f", "-force"}, false, "Create README file without prompting")
-		flCommand = flag.String([]string{"c", "-command"}, "", "Set Command to open README")
+		flVersion  = flag.Bool([]string{"v", "-version"}, false, "Print version information and quit")
+		flHelp     = flag.Bool([]string{"h", "-help"}, false, "Print this message")
+		flDebug    = flag.Bool([]string{"-debug"}, false, "Run as DEBUG mode")
+		flEditor   = flag.Bool([]string{"e", "-editor"}, false, "Open README by editor")
+		flForce    = flag.Bool([]string{"f", "-force"}, false, "Create README file without prompting")
+		flCommand  = flag.Bool([]string{"c", "-command"}, false, "Open README by command which configured in .gitcofing by default")
+		argCommand = flag.String([]string{"-open-with"}, "", "Set command to open ")
 	)
 
 	flag.Parse()
@@ -40,20 +40,19 @@ func main() {
 		os.Exit(0)
 	}
 
-	cmd := retrieveCmd()
+	cmd := ""
 
-	if *flCommand != "" {
-		cmd = *flCommand
+	if *flCommand {
+		cmd = retrieveCmd()
+	}
+
+	if *argCommand != "" {
+		cmd = *argCommand
 	}
 
 	if *flEditor {
 		cmd = os.Getenv("EDITOR")
 	}
-
-	if *flBrowser {
-		cmd = ""
-	}
-
 	debug("cmd:", cmd)
 
 	path := "."
