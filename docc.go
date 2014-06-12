@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"syscall"
 
@@ -127,7 +128,31 @@ func retrieveURL() string {
 	}
 
 	trimedURL := strings.TrimRight(string(url), "\n")
-	return trimedURL
+
+	return convertURLToHTTPS(trimedURL)
+}
+
+func convertURLToHTTPS(ref string) string {
+	hasSchemePattern := regexp.MustCompile("^[^:]+://")
+	scpLikeUrlPattern := regexp.MustCompile("^([^@]+@)?([^:]+):(/~[^/]*/)?(.+).git$")
+	if !hasSchemePattern.MatchString(ref) && scpLikeUrlPattern.MatchString(ref) {
+		matched := scpLikeUrlPattern.FindStringSubmatch(ref)
+		host := matched[2]
+		path := matched[4]
+
+		return fmt.Sprintf("https://%s/%s", host, path)
+	}
+
+	urlWithSchemePattern := regexp.MustCompile("^[^:]+://([^@]+@)?([^:/]+)(:[0-9]+)?(/~[^/]*)?/(.+).git$")
+	if hasSchemePattern.MatchString(ref) && urlWithSchemePattern.MatchString(ref) {
+		matched := urlWithSchemePattern.FindStringSubmatch(ref)
+		host := matched[2]
+		path := matched[5]
+
+		return fmt.Sprintf("https://%s/%s", host, path)
+	}
+
+	return ""
 }
 
 func retrieveReadmeFile(forceCreate bool) string {
