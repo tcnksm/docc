@@ -129,14 +129,30 @@ func retrieveURL() string {
 
 	trimedURL := strings.TrimRight(string(url), "\n")
 
-	scheme := "https" // Should be configurable
-	re := regexp.MustCompile("^ssh://git@(.+).git$")
-	authority := re.FindStringSubmatch(trimedURL)
-	if authority != nil {
-		return scheme + "://" + authority[1]
+	return convertURLToHTTPS(trimedURL)
+}
+
+func convertURLToHTTPS(ref string) string {
+	hasSchemePattern := regexp.MustCompile("^[^:]+://")
+	scpLikeUrlPattern := regexp.MustCompile("^([^@]+@)?([^:]+):(/~[^/]*/)?(.+).git$")
+	if !hasSchemePattern.MatchString(ref) && scpLikeUrlPattern.MatchString(ref) {
+		matched := scpLikeUrlPattern.FindStringSubmatch(ref)
+		host := matched[2]
+		path := matched[4]
+
+		return fmt.Sprintf("https://%s/%s", host, path)
 	}
 
-	return trimedURL
+	urlWithSchemePattern := regexp.MustCompile("^[^:]+://([^@]+@)?([^:/]+)(:[0-9]+)?(/~[^/]*)?/(.+).git$")
+	if hasSchemePattern.MatchString(ref) && urlWithSchemePattern.MatchString(ref) {
+		matched := urlWithSchemePattern.FindStringSubmatch(ref)
+		host := matched[2]
+		path := matched[5]
+
+		return fmt.Sprintf("https://%s/%s", host, path)
+	}
+
+	return ""
 }
 
 func retrieveReadmeFile(forceCreate bool) string {
