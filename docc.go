@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"syscall"
 
@@ -127,6 +128,14 @@ func retrieveURL() string {
 	}
 
 	trimedURL := strings.TrimRight(string(url), "\n")
+
+	scheme := "https" // Should be configurable
+	re := regexp.MustCompile("^ssh://git@(.+).git$")
+	authority := re.FindStringSubmatch(trimedURL)
+	if authority != nil {
+		return scheme + "://" + authority[1]
+	}
+
 	return trimedURL
 }
 
