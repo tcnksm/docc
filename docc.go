@@ -66,7 +66,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	debug("url:", absPath)
+	debug("absPath:", absPath)
 
 	if _, err := os.Stat(absPath); os.IsNotExist(err) {
 		fmt.Printf("no such file or directory: %s\n", absPath)
@@ -77,6 +77,7 @@ func main() {
 
 	url := retrieveURL()
 	if cmd == "" && url != "" {
+		debug("url:", url)
 		openByBrowser(url)
 	}
 
