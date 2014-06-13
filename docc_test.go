@@ -5,6 +5,7 @@ import (
 )
 
 func TestConvertToHTTPS(t *testing.T) {
+	
 	args := []string{
 		"github.com:tcnksm/docc.git",
 		"git@github.com:tcnksm/docc.git",
@@ -17,6 +18,8 @@ func TestConvertToHTTPS(t *testing.T) {
 		"git://github.com:9418/tcnksm/docc.git",
 		"git://github.com/~user/tcnksm/docc.git",
 		"https://github.com/tcnksm/docc.git",
+		"https://tcnksm@github.com/tcnksm/docc.git",
+		"https://tcnksm:PASS@github.com/tcnksm/docc.git",
 		"https://github.com:9418/tcnksm/docc.git",
 	}
 
